@@ -277,3 +277,15 @@ void put(Cache *c, const char *key, int data)
     ++c->size;
 }
 
+int get (Cache *c, const char *key)
+{
+    Node *exist = hash_search(c, key);
+
+    if (exist)
+    {
+        move_to_head(c, exist);
+        return exist->data;
+    }
+    
+    return -1;
+}

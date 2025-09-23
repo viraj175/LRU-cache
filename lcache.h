@@ -38,12 +38,12 @@ Node *hash_search (Cache *c, const char *data); //done
 void hash_insert (Cache *c, Node *node); //done
 void hash_delete (Cache *c, const char *key); //done
 Cache *init_cache (size_t capacity); //done
-void move_to_head (Cache *c, Node *node); 
-void evict_tail (Cache *c);
-void insert_head (Cache *c, Node *node);
+void move_to_head (Cache *c, Node *node); //done
+void evict_tail (Cache *c); //done
+void insert_head (Cache *c, Node *node); //done
 Node *create_node (const char *key, int data); //done 
 void delete_node (Cache *c, Node *nodeToDelete); //done
-Node *get (Cache *c);
+int get (Cache *c, const char *key);
 void put (Cache *c, const char *key, int data); // done
 void print_cache (Cache *c); //done
 void destroy_cache (Cache **c); //update needed

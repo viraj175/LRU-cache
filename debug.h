@@ -17,8 +17,18 @@
         fprintf(stderr, BLUE "[INFO]" RESET " %s, %s at %s:%d\n", \
                 (msg), __func__, __FILE__, __LINE__); \
     } while(0)
+    #define CALL_LOG_GET(call) do { \
+        int r = call; \
+        if (r == -1) { \
+            fprintf(stderr, GREEN "[CALL] " RESET #call RED " [INFO]" RESET " NOT FOUND\n"); \
+        } \
+        else { \
+            fprintf(stderr, GREEN "[CALL] " RESET #call BLUE " [INFO]" RESET " value: %d\n", r); \
+        } \
+    } while(0)
 #else
     #define LOG_ERROR_MSG(msg) do { } while(0)
+    #define CALL_LOG_GET(call) call
 #endif
 
 

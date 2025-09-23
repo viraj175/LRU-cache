@@ -26,3 +26,7 @@ clean:
 rebuild: clean all
 
 .PHONY: all release run clean rebuild
+
+# dependencies
+main.c: lcache.h debug.h
+lcache.c: lcache.h debug.h

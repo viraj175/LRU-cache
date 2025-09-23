@@ -2,7 +2,6 @@
 #include "debug.h"
 
 #include <stdio.h>
-#include <stdlib.h>
 
 #define SIZE 10
 
@@ -22,6 +21,8 @@ int main() {
     print_cache(c1);
     put(c1, "hint", 32);
     print_cache(c1);
+    CALL_LOG_GET(get(c1, "int"));
+    CALL_LOG_GET(get(c1, "hi"));
 
     destroy_cache(&c1);
     

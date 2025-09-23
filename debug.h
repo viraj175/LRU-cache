@@ -10,13 +10,15 @@
 
 #include <stdio.h>
 
-
+// To use this debug macros you need to compile it with -DDEBUG flag with gcc
 #ifdef DEBUG
     // For logging error message
     #define LOG_ERROR_MSG(msg) do { \
         fprintf(stderr, BLUE "[INFO]" RESET " %s, %s at %s:%d\n", \
                 (msg), __func__, __FILE__, __LINE__); \
     } while(0)
+    
+    // Just give information about get operation.
     #define CALL_LOG_GET(call) do { \
         int r = call; \
         if (r == -1) { \
@@ -32,7 +34,7 @@
 #endif
 
 
-// safely free the memory allocated
+// safely free the memory allocated and set pointer to NULL
 #define SAFE_FREE(ptr) do { \
     if (ptr) { \
         free(ptr); \

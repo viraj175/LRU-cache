@@ -23,23 +23,19 @@ uint64_t hash(const char *data, uint64_t size)
 
 Cache *init_cache(size_t capacity)
 {
+    /* Allocating memory for Cache and HashTable */
     Cache *c = malloc(sizeof(Cache));
-    if (c == NULL)
+    c->HashTable = calloc(capacity, sizeof(HashNode *));
+
+    if (c == NULL || c->HashTable == NULL)
     {
-        fprintf(stderr, "Memory allocation failed!\n"); 
+        LOG_ERROR_MSG("memory allocation failed!");
         return NULL;
     }
 
     c->capacity = capacity;
     c->size = 0;
     c->head = c->tail = NULL;
-
-    c->HashTable = calloc(capacity, sizeof(HashNode *));
-    if (c->HashTable == NULL) 
-    {
-        fprintf(stderr, "Memory allocation failed!\n"); 
-        return NULL;
-    }
     
     return c;
 }

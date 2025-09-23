@@ -31,6 +31,7 @@ Cache *init_cache(size_t capacity)
     }
 
     c->capacity = capacity;
+    c->size = 0;
     c->head = c->tail = NULL;
 
     c->HashTable = calloc(capacity, sizeof(HashNode *));
@@ -87,26 +88,26 @@ void print_cache(Cache *c)
     printf("<- " YELLOW "TAIL" RESET " ->" RED "%p" RESET "\n", NULL);
 }
 
-Node *hashSearch(Cache *c, const char *key)
+Node *hash_search(Cache *c, const char *key)
 {
     uint64_t index = hash(key, c->capacity);
     HashNode *hash_node = c->HashTable[index];
 
     while (hash_node != NULL)
     {
-        if (strcmp(hash_node->cache_node->key, key) == 0) return hash_node->cache_node;
+        if (strcmp(hash_node->first_node->key, key) == 0) return hash_node->first_node;
         hash_node = hash_node->next;
     }
     
     return NULL;
 }
 
-void hashInsert (Cache *c, Node *node)
+void hash_insert (Cache *c, Node *node)
 {
     uint64_t index = hash(node->key, c->capacity);
     HashNode *temp = c->HashTable[index];
 
-    if (hashSearch(c, node->key))
+    if (hash_search(c, node->key))
     {
         LOG_ERROR_MSG("key already exist");
         return;
@@ -120,7 +121,7 @@ void hashInsert (Cache *c, Node *node)
             LOG_ERROR_MSG("malloc failed");
             return;
         }
-        c->HashTable[index]->cache_node = node;
+        c->HashTable[index]->first_node = node;
         c->HashTable[index]->next = NULL;
         return;
     }
@@ -134,15 +135,43 @@ void hashInsert (Cache *c, Node *node)
     }
 
     add->next = NULL;
-    add->cache_node = node;
+    add->first_node = node;
     temp->next = add;
 }
 
-Node *createNode(const char *key, int data)
+void hash_delete(Cache *c, const char *key)
+{
+    uint64_t index = hash(key, c->size);
+    // Node *node = hash_search(c, key);
+    HashNode *del = c->HashTable[index];
+    HashNode *prev = NULL;
+
+    while (del->next != NULL) {
+        prev = del;
+        del = del->next;
+    } 
+
+    if (prev == NULL)
+    {
+        c->HashTable[index] = c->HashTable[index]->next;
+    }
+    else if (del == NULL)
+    {
+        prev->next = NULL;
+    }
+    else 
+    {
+        prev->next = del->next;
+    }
+
+    SAFE_FREE(del);
+}
+
+Node *create_node(const char *key, int data)
 {
     Node *node = malloc(sizeof(Node));
     node->key = malloc(strlen(key) + 1);
-    if (node == NULL)
+    if (node == NULL || node->key == NULL)
     {
         LOG_ERROR_MSG("Malloc failed");
         return NULL;
@@ -154,22 +183,70 @@ Node *createNode(const char *key, int data)
     return node;
 }
 
-void deleteNode(Cache *c, const char *key)
+void delete_node(Cache *c, Node *del)
 {
-    if (c == NULL) return;
     
-    Node *nodeToDelete = hashSearch(c, key);
-    if (nodeToDelete == NULL) 
+    if (del == NULL || c == NULL) 
     {
         LOG_ERROR_MSG("invalid node provided");
         return;
     }
 
-    nodeToDelete->prev->next = nodeToDelete->next;
-    nodeToDelete->next->prev = nodeToDelete->prev;
+    if (del == c->head && del == c->tail)
+    {
+        c->head = c->tail = NULL;
+    }
+    else if (del == c->head)
+    {
+        c->head = c->head->next;
+        c->head->prev = NULL;
+    }
+    else if (del == c->tail)
+    {
+        c->tail = c->tail->prev;
+        c->tail->next = NULL;
+    }
+    else 
+    {
+        del->prev->next = del->next;
+        del->next->prev = del->prev;
+    }
 
-    SAFE_FREE(nodeToDelete->key);
-    SAFE_FREE(nodeToDelete);
+    hash_delete(c, del->key);
+    SAFE_FREE(del->key);
+    SAFE_FREE(del);
+}
+
+void insert_head(Cache *c, Node *node)
+{
+    node->prev = NULL;
+    node->next = c->head;
+
+    if (c->head != NULL)
+    {
+        c->head->prev = node;
+    }
+    else 
+    {
+        c->tail = node;
+    }
+    c->head = node;
+}
+
+void move_to_head(Cache *c, Node *node)
+{
+    if (node == c->head) return;
+
+    if (node->prev) node->prev->next = node->next;
+    if (node->next) node->next->prev = node->prev;
+    else c->tail = node->prev;
+
+    insert_head(c, node);
+}
+
+void evict_tail(Cache *c)
+{
+    delete_node(c, c->tail);
 }
 
 void put(Cache *c, const char *key, int data)
@@ -180,33 +257,23 @@ void put(Cache *c, const char *key, int data)
         return;
     }
 
-    if (c->head == NULL)
-    {
-        Node *temp = createNode(key, data);
-        hashInsert(c, temp);
-        c->head = c->tail = temp;
-        c->head->prev = c->tail->next = NULL;
-        return;
-    }
-
-    Node *exist = hashSearch(c, key);
+    Node *exist = hash_search(c, key);
 
     if (exist)
     {
         exist->data = data;
-        exist->prev->next = exist->next;
-        exist->next->prev = exist->prev;
-        exist->next = c->head;
-        c->head->prev = exist;
-        c->head = exist;
-        c->head->prev = NULL;
+        move_to_head(c, exist);
         return;
     }
-    
-    exist = createNode(key, data);
-    hashInsert(c, exist);
-    exist->next = c->head;
-    c->head->prev = exist;
-    c->head = exist;
-    c->head->prev = NULL;
+
+    if (c->size == c->capacity) 
+    {
+        evict_tail(c);
+    }
+
+    Node *node = create_node(key, data);
+    insert_head(c, node);
+    hash_insert(c, node);               
+    ++c->size;
 }
+

@@ -1,14 +1,14 @@
 CC=gcc
-CFLAGS=-Wall -Wextra -std=c99 -Werror -g -lm
+CFLAGS=-Wall -Wextra -std=c99 -Werror -g
 RELEASEFLAGS=-O2 -DNDEBUG
-DBGFLAGS = -fsanitize=address -fsanitize=undefined
+DBGFLAGS = -fsanitize=address -fsanitize=undefined -DDEBUG
 SRC=main.c lcache.c
 OBJ=$(SRC:.c=.o)
 TARGET=LRUcache
 
 all: $(TARGET)
 
-release: CFLAGS=-Wall -Wextra -std=c99 -Werror $(RELEASEFLAGS)
+release: CFLAGS= $(RELEASEFLAGS)
 release: $(TARGET)
 
 $(TARGET): $(OBJ)

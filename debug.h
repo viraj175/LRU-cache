@@ -10,16 +10,17 @@
 
 #include <stdio.h>
 
+
 #ifdef DEBUG
     // For logging error message
-#define LOG_ERROR_MSG(msg) do { \
+    #define LOG_ERROR_MSG(msg) do { \
         fprintf(stderr, BLUE "[INFO]" RESET " %s, %s at %s:%d\n", \
                 (msg), __func__, __FILE__, __LINE__); \
     } while(0)
-
 #else
-
+    #define LOG_ERROR_MSG(msg) do { } while(0)
 #endif
+
 
 // safely free the memory allocated
 #define SAFE_FREE(ptr) do { \

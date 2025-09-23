@@ -15,8 +15,12 @@ int main() {
     put(c1, "hint", 12);
     put(c1, "int", 34);
     put(c1, "INT", 4);
+    print_cache(c1);
     put(c1, "viraj", 3);
+    print_cache(c1);
     put(c1, "shield", 48);
+    print_cache(c1);
+    put(c1, "hint", 32);
     print_cache(c1);
 
     destroy_cache(&c1);

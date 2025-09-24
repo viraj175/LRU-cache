@@ -27,7 +27,7 @@ struct HashNode {
     *  which stores the pointer to nodes */
     // key is only storing pointers
     char *key;
-    Node *first_node;
+    Node *saved_node;
 
     // reference to next HashNode
     HashNode *next;
@@ -53,8 +53,8 @@ struct Cache {
 };
 
 //Definition of all basic and helper functions
-uint64_t hash (const char *data, uint64_t size); //done
-Node *hash_search (Cache *c, const char *data); //done
+uint64_t hash (const char *key, uint64_t size); //done
+Node *hash_search (Cache *c, const char *key); //done
 void hash_insert (Cache *c, Node *node); //done
 void hash_delete (Cache *c, const char *key); //done
 Cache *init_cache (size_t capacity); //done

@@ -66,6 +66,7 @@ void delete_node (Cache *c, Node *nodeToDelete); //done
 int get (Cache *c, const char *key); //done
 void put (Cache *c, const char *key, int data); // done
 void print_cache (Cache *c); //done
+void print_hash_table (Cache *c);
 void destroy_cache (Cache **c); //done
 
 #endif // LCACHE_H

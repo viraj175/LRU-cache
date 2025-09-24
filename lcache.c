@@ -110,6 +110,35 @@ void print_cache(Cache *c)
     printf("<- " YELLOW "TAIL" RESET " ->" RED "%p" RESET "\n", NULL);
 }
 
+// printing hashtable for debugging
+void print_hash_table(Cache *c)
+{
+    if (c->HashTable == NULL) return;
+
+    for (size_t i = 0; i < c->capacity; ++i)
+    {
+        HashNode *temp = c->HashTable[i];
+        if (temp == NULL) continue;
+
+        printf(YELLOW "(%lu)" RESET " -> ", i);
+
+        // uncomment these lines to see hash table with empty hashNodes
+        // if (temp == NULL)
+        // {
+        //     printf(RED "%p" RESET "\n", temp);
+        //     continue;   
+        // }
+
+        while (temp != NULL)
+        {
+            printf("[ " BLUE "%s" RESET " | " GREEN "%d" RESET " ] -> ", 
+                   temp->saved_node->key, temp->saved_node->data);
+            temp = temp->next;
+        }
+        printf(RED "%p" RESET "\n", temp);
+    }
+}
+
 // this is function for searching the existing key in nodes return pointer to node if found
 Node *hash_search(Cache *c, const char *key)
 {
@@ -365,3 +394,4 @@ int get (Cache *c, const char *key)
     
     return -1;
 }
+
